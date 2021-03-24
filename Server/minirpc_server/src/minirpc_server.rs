@@ -55,8 +55,13 @@ pub async fn run(server: Arc<Mutex<MiniRPCServer>>) -> Result<(), Box<dyn Error>
             shared = server_copy.shared.clone();
         }
         tokio::spawn(async move {
-            if let Err(e) = client::handle_client(stream, addr, shared).await {
-                let _ = e;
+            match client::handle_client(stream, addr, shared).await {
+                Ok(code) => {
+                    println!("Client disconnected. Code : {}", code);
+                },
+                Err(e) => {
+                    println!("Client disconnected after error : {}", e);
+                }
             }
         });
     }

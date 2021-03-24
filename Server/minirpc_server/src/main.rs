@@ -22,11 +22,7 @@ async fn main() {
 
     loop {
         match rx.recv() {
-            Ok((mut client_ident, packet)) => {
-                if !client_ident.is_logged_in && packet != creds.rpc_creds.password {
-                    client_ident.send_channel(String::from("0")).await; // @TODO
-                }
-                client_ident.is_logged_in = true;
+            Ok((client_ident, packet)) => {
                 println!("packet : {}", packet);
             },
             Err(e) => {

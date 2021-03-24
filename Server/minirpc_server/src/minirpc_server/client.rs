@@ -96,7 +96,7 @@ pub async fn handle_client(
     stream: TcpStream,
     address: SocketAddr,
     shared: Arc<Mutex<Shared>>,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<i8, Box<dyn Error>> {
     let stream = Framed::new(stream, LinesCodec::new());
     let mut client = Client::new(stream, address);
     // If need to add client to serv, create client before entering this func
@@ -104,24 +104,25 @@ pub async fn handle_client(
     while let Some(result) = client.next().await {
         match result {
             Ok(Message::Network(packet)) => {
-                println!("RCVD NETW : {:?}", packet);
+                if !client.client_identity.is_logged_in && packet != shared.lock().await.password {
+                    return Ok(-1);
+                }
+                client.client_identity.is_logged_in = true;
+
                 match shared.lock().await.tx.send((client.client_identity.clone(), packet)) {
                     Ok(_) => {},
                     Err(e) => { return Err(Box::new(e)); }
                 }
             },
             Ok(Message::Channel(packet)) => {
-                println!("RCVD CHAN : {:?}", packet);
                 match client.send_network(packet).await {
                     Ok(_) => {},
                     Err(e) => { return Err(Box::new(e)); }
                 }
             },
-            Err(e) => {
-                return Err(Box::new(e));
-            }
+            Err(e) => { return Err(Box::new(e)); }
         }
     }
     
-    Ok(())
+    Ok(0)
 }
