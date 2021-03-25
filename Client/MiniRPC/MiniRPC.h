@@ -11,10 +11,11 @@ public:
 
 	bool Initialize();
 	void Send(const std::string& message, std::function<void(RpcResponse)> callback);
+	void Send(const std::string& message);
 
 private:
 	void login();
-	void write(std::string& msg);
+	void write(const std::string& msg);
 	void read();
 
 	asio::io_context& ioCtx;
@@ -22,7 +23,8 @@ private:
 	unsigned short port;
 	std::string password;
 
-	char buffer[400]; // @TODO
+	char buffer[256];
+	std::string packet;
 
 	RpcCallback rpcCb;
 	uint32_t lastIndex;

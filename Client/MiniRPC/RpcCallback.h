@@ -18,13 +18,15 @@ public:
 		return true;
 	}
 
-	void Process(uint32_t index)
+	void Process(RpcResponse resp)
 	{
-		if (callbacks.find(index) == callbacks.end())
+		uint32_t id = resp.GetCallbackId();
+
+		if (callbacks.find(id) == callbacks.end())
 			return;
 
-		callbacks[index](RpcResponse());
-		callbacks.erase(index);
+		callbacks[id](resp);
+		callbacks.erase(id);
 	}
 
 private:

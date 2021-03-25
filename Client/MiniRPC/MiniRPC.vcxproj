@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="MiniRPC.h" />
     <ClInclude Include="RpcCallback.h" />
+    <ClInclude Include="RpcHeader.h" />
     <ClInclude Include="RpcResponse.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>

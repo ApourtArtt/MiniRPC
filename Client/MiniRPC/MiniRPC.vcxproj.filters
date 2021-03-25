@@ -9,5 +9,6 @@
     <ClInclude Include="RpcCallback.h" />
     <ClInclude Include="RpcResponse.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="RpcHeader.h" />
   </ItemGroup>
 </Project>

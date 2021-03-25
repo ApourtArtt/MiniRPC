@@ -45,7 +45,7 @@ void MiniRPC::login()
     write(password);
 }
 
-void MiniRPC::write(std::string& msg)
+void MiniRPC::write(const std::string& msg)
 {
     std::string* newMsg = new std::string(msg + "\n");
     asio::async_write(socket, asio::buffer(*newMsg),
@@ -67,13 +67,17 @@ void MiniRPC::read()
             }
             if (bytes > 0)
             {
-                std::string msg = buffer;
-                std::string fword = msg.substr(0, msg.find_first_of(" "));
+                packet += std::string(buffer, bytes);
 
-                auto [value, valid] = ToNumber<uint32_t>(fword.c_str());
-                if (valid)
+                size_t pos;
+                while ((pos = packet.find_first_of('\n')) != std::string::npos)
                 {
-                    rpcCb.Process(value);
+                    std::string subPacket = packet.substr(0, pos);
+                    RpcResponse resp(subPacket);
+                    packet.erase(0, pos + 1);
+
+                    if (resp.IsBounded())
+                        rpcCb.Process(resp);
                 }
             }
             read();
@@ -91,5 +95,12 @@ void MiniRPC::Send(const std::string& message, std::function<void(RpcResponse)> 
     formatedMsg.reserve(idx.size() + message.size() + 1);
     formatedMsg = std::to_string(lastIndex) + " " + message;
 
+    lastIndex++;
+
     write(formatedMsg);
+}
+
+void MiniRPC::Send(const std::string& message)
+{
+    write(message);
 }

@@ -1,4 +1,5 @@
 #include "MiniRPC.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -13,13 +14,13 @@ int main(int argc, char *argv[])
 
 	Sleep(5000);
 
-	rpc.Send("Hey !", [](RpcResponse resp) {
-		printf("Example 1\n");
-		});
+	rpc.Send("Hey ! ergzergz er", [](RpcResponse resp) {
+		std::cout << resp.GetPacket() << std::endl;
+	});
 
-	rpc.Send("Hoy !", [](RpcResponse resp) {
-		printf("Example 2\n");
-		});
+	rpc.Send("Hoy !gz ergzer gze", [](RpcResponse resp) {
+		std::cout << resp.GetPacket() << std::endl;
+	});
 
 	while (true) { Sleep(5000); } // ...
 }
