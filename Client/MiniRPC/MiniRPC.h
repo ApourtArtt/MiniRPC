@@ -1,5 +1,7 @@
 #pragma once
 #include <asio.hpp>
+#include "RpcCallback.h"
+
 
 class MiniRPC
 {
@@ -8,6 +10,7 @@ public:
 	~MiniRPC();
 
 	bool Initialize();
+	void Send(const std::string& message, std::function<void(RpcResponse)> callback);
 
 private:
 	void login();
@@ -19,7 +22,10 @@ private:
 	unsigned short port;
 	std::string password;
 
-	char buffer[400];
+	char buffer[400]; // @TODO
+
+	RpcCallback rpcCb;
+	uint32_t lastIndex;
 
 	asio::ip::tcp::socket socket;
 	std::thread rpcThread;
