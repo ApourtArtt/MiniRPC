@@ -24,6 +24,10 @@ async fn main() {
         match rx.recv() {
             Ok((client_ident, packet)) => {
                 println!("packet : {}", packet);
+                match client_ident.send_channel(String::from(packet)).await {
+                    Ok(_) => { println!("OK"); },
+                    Err(e) => { println!("Error : {:?}", e); }
+                }
             },
             Err(e) => {
                 println!("Error while reading packet : {}", e);

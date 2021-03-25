@@ -78,7 +78,7 @@ impl Stream for Client {
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         // Data on channel
-        if let Poll::Ready(Some(v)) = Pin::new(&mut self.rx).poll_recv(cx) { // @TODO
+        if let Poll::Ready(Some(v)) = Pin::new(&mut self.rx).poll_recv(cx) {
             return Poll::Ready(Some(Ok(Message::Channel(v))));
         }
 
@@ -106,15 +106,16 @@ pub async fn handle_client(
             Ok(Message::Network(packet)) => {
                 if !client.client_identity.is_logged_in && packet != shared.lock().await.password {
                     return Ok(-1);
-                }
-                client.client_identity.is_logged_in = true;
-
-                match shared.lock().await.tx.send((client.client_identity.clone(), packet)) {
-                    Ok(_) => {},
-                    Err(e) => { return Err(Box::new(e)); }
+                } else {
+                    client.client_identity.is_logged_in = true;
+                    match shared.lock().await.tx.send((client.client_identity.clone(), packet)) {
+                        Ok(_) => {},
+                        Err(e) => { return Err(Box::new(e)); }
+                    }
                 }
             },
             Ok(Message::Channel(packet)) => {
+                println!("OKHERE");
                 match client.send_network(packet).await {
                     Ok(_) => {},
                     Err(e) => { return Err(Box::new(e)); }
