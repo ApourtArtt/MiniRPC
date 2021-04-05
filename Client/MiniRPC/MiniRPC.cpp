@@ -62,22 +62,24 @@ void MiniRPC::read()
         {
             if (ec)
             {
-                std::cout << "Disconnect, failed to receive : %s\n", ec.message();
-                return;
+                std::cout << "An error occured while trying to read : %s\n", ec.message();
             }
-            if (bytes > 0)
+            else
             {
-                packet += std::string(buffer, bytes);
-
-                size_t pos;
-                while ((pos = packet.find_first_of('\n')) != std::string::npos)
+                if (bytes > 0)
                 {
-                    std::string subPacket = packet.substr(0, pos);
-                    RpcResponse resp(subPacket);
-                    packet.erase(0, pos + 1);
+                    packet += std::string(buffer, bytes);
 
-                    if (resp.IsBounded())
-                        rpcCb.Process(resp);
+                    size_t pos;
+                    while ((pos = packet.find_first_of('\n')) != std::string::npos)
+                    {
+                        std::string subPacket = packet.substr(0, pos);
+                        RpcResponse resp(subPacket);
+                        packet.erase(0, pos + 1);
+
+                        if (resp.IsBounded())
+                            rpcCb.Process(resp);
+                    }
                 }
             }
             read();
